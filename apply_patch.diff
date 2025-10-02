@@ -1,0 +1,149 @@
+*** Begin Patch
+*** Update File: app/Services/WRService.php
+@@
+-            for ($slotIdx = 0; $slotIdx < $slotCount; $slotIdx++) {
+-                $row = $rowCursor + $slotIdx;
+-                $slotLabel = $this->slots[$slotIdx][2];
+-
+-                $sheet->setCellValue('C'.$row, 'General.');
+-                $sheet->setCellValue('D'.$row, $slotLabel);
+-
+-                if ($slotIdx === 0) {
+-                    $sheet->setCellValue('B'.$row, strtoupper($date->clone()->locale('id')->dayName));
+-                } elseif ($slotIdx === 3) {
+-                    $sheet->setCellValue('B'.$row, $date->clone()->translatedFormat('d F Y'));
+-                }
+-
+-                if ($isWeekend || $isHoliday) {
+-                    $sheet->setCellValue('E'.$row, null);
+-                    $sheet->setCellValue('G'.$row, null);
+-                    $sheet->getStyle("B{$row}:G{$row}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('F5F5F5');
+-                    $sheet->getRowDimension($row)->setRowHeight(20.1);
+-                    continue;
+-                }
+-
+-                $sheet->getStyle("B{$row}:G{$row}")->getFill()->setFillType(Fill::FILL_NONE);
+-                $sheet->getRowDimension($row)->setRowHeight(60);
+-
+-                $detailLines = $slotIdx === 0
+-                    ? [
+-                        ' - Monitoring Daily Summary Collaboration Team',
+-                        ' - Support User Aplikasi E-Proc SIG melalui WhatsApp',
+-                        ' - Melakukan Pengecekan Day to Day Aplikasi',
+-                    ]
+-                    : [
+-                        ' - Support User Aplikasi E-Proc SIG melalui WhatsApp',
+-                    ];
+-
+-                $outputLines = [
+-                    ' - Informasi yang diinginkan oleh user menjadi tersampaikan',
+-                ];
++            for ($slotIdx = 0; $slotIdx < $slotCount; $slotIdx++) {
++                $row = $rowCursor + $slotIdx;
++                $slotLabel = $this->slots[$slotIdx][2];
++
++                $sheet->setCellValue('C'.$row, $slotIdx + 1);
++                $sheet->setCellValue('D'.$row, $slotLabel);
++
++                if ($slotIdx === 0) {
++                    $sheet->setCellValue('B'.$row, strtoupper($date->clone()->locale('id')->dayName));
++                } elseif ($slotIdx === 3) {
++                    $sheet->setCellValue('B'.$row, $date->clone()->translatedFormat('d F Y'));
++                }
++
++                $sheet->getStyle("B{$row}:G{$row}")->applyFromArray([
++                    'borders' => [
++                        'allBorders' => [
++                            'borderStyle' => Border::BORDER_THIN,
++                            'color' => ['rgb' => 'C8C8C8'],
++                        ],
++                    ],
++                ]);
++
++                $sheet->getStyle('B'.$row)->getBorders()->getLeft()->setBorderStyle(Border::BORDER_DOUBLE)->getColor()->setRGB('000000');
++                $sheet->getStyle('G'.$row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_DOUBLE)->getColor()->setRGB('000000');
++
++                $sheet->getStyle("B{$row}:G{$row}")->getFill()->setFillType($isWeekend || $isHoliday ? Fill::FILL_SOLID : Fill::FILL_NONE);
++                if ($isWeekend || $isHoliday) {
++                    $sheet->getStyle("B{$row}:G{$row}")->getFill()->getStartColor()->setRGB('F5F5F5');
++                }
++
++                $sheet->getRowDimension($row)->setRowHeight(-1);
++
++                $detailLines = $slotIdx === 0
++                    ? [
++                        ' - Monitoring Daily Summary Collaboration Team',
++                        ' - Support User Aplikasi E-Proc SIG melalui WhatsApp',
++                        ' - Melakukan Pengecekan Day to Day Aplikasi',
++                    ]
++                    : [
++                        ' - Support User Aplikasi E-Proc SIG melalui WhatsApp',
++                    ];
++
++                $outputLines = [
++                    ' - Informasi yang diinginkan oleh user menjadi tersampaikan',
++                ];
+@@
+-                $sheet->setCellValue('E'.$row, implode("\n", $detailLines));
+-                $sheet->setCellValue('G'.$row, implode("\n", $outputLines));
+-
+-                $sheet->getStyle("E{$row}:G{$row}")->getAlignment()->setWrapText(true)->setVertical(Alignment::VERTICAL_TOP);
+-                $sheet->getStyle('D'.$row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+-                $sheet->getStyle("B{$row}:G{$row}")->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN)->getColor()->setRGB('C8C8C8');
++                $sheet->setCellValue('E'.$row, implode("\n", $detailLines));
++                $sheet->setCellValue('G'.$row, implode("\n", $outputLines));
++
++                $sheet->getStyle("E{$row}:G{$row}")->getAlignment()->setWrapText(true)->setVertical(Alignment::VERTICAL_TOP);
++                $sheet->getStyle('D'.$row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
++
++                $fontColor = ($isWeekend || $isHoliday) ? 'C00000' : '000000';
++                $sheet->getStyle("B{$row}:G{$row}")->getFont()->getColor()->setRGB($fontColor);
+ 
+                 foreach ($dayTickets as $ticket) {
+                     $slot = $this->pickSlotIndex($ticket->resolved_at_src);
+                     if ($slot !== $slotIdx) {
+                         continue;
+@@
+-                $sheet->setCellValue('E'.$row, implode("\n", $detailLines));
+-                $sheet->setCellValue('G'.$row, implode("\n", $outputLines));
+-
+-                $sheet->getStyle("E{$row}:G{$row}")->getAlignment()->setWrapText(true)->setVertical(Alignment::VERTICAL_TOP);
+-                $sheet->getStyle('D'.$row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+-                $sheet->getStyle("B{$row}:G{$row}")->applyFromArray([
+-                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'C8C8C8']]],
+-                ]);
+-
+-                if ($isWeekend || $isHoliday) {
+-                    $sheet->getStyle("B{$row}:G{$row}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('F5F5F5');
+-                }
++                $sheet->setCellValue('E'.$row, implode("\n", $detailLines));
++                $sheet->setCellValue('G'.$row, implode("\n", $outputLines));
++
++                $sheet->getStyle("E{$row}:G{$row}")->getAlignment()->setWrapText(true)->setVertical(Alignment::VERTICAL_TOP);
++                $sheet->getStyle('D'.$row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
++
++                $fontColor = ($isWeekend || $isHoliday) ? 'C00000' : '000000';
++                $sheet->getStyle("B{$row}:G{$row}")->getFont()->getColor()->setRGB($fontColor);
+             }
+ 
+-            $rowCursor += $slotCount;
++            $sheet->getStyle("B{$rowCursor}:G{$rowCursor}")->applyFromArray([
++                'borders' => [
++                    'top' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '000000']],
++                ],
++            ]);
++
++            $lastRowOfDay = $rowCursor + $slotCount - 1;
++            $sheet->getStyle("B{$lastRowOfDay}:G{$lastRowOfDay}")->applyFromArray([
++                'borders' => [
++                    'bottom' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '000000']],
++                ],
++            ]);
++
++            $rowCursor += $slotCount;
+         }
+ 
+         // Clear remaining rows after last processed day
+         for ($row = $rowCursor; $row <= $maxTemplateRow; $row++) {
+             foreach (['B','C','D','E','F','G'] as $col) {
+*** End Patch
