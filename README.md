@@ -48,6 +48,5 @@ Production
     - 3.8 `php artisan queue:work`
 
 ## 🏃 Konfigurasi
-
 1. Pastikan allow connection untuk database PostgreSQL ke Aplikasi.
 2. Pastikan ekstensi PDO (pgsql), mbstring, openssl, json, curl, zip sudah di aktifkan di php.ini
