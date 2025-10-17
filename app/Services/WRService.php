@@ -334,13 +334,22 @@ class WRService
                 }
 
                 foreach ($dayManuals as $activity) {
-                    $slot = $this->determineSlotIndexFromClock($activity->start_time, $slots);
-                    if ($slot !== $slotIdx) {
+                    $coveredSlots = $this->determineSlotIndexesFromRange(
+                        $activity->start_time,
+                        $activity->end_time,
+                        $slots
+                    );
+
+                    if (!in_array($slotIdx, $coveredSlots, true)) {
                         continue;
                     }
 
                     $title = trim((string) ($activity->title ?? '-'));
-                    $timeRange = sprintf('%s-%s', $this->formatClock($activity->start_time), $this->formatClock($activity->end_time));
+                    $timeRange = sprintf(
+                        '%s-%s',
+                        $this->formatClock($activity->start_time),
+                        $this->formatClock($activity->end_time)
+                    );
                     $detailLines[] = sprintf(' - %s (%s)', $title ?: '-', $timeRange);
 
                     $output = trim((string) ($activity->output ?? ''));
@@ -570,8 +579,8 @@ class WRService
                 }
 
                 foreach ($dayManuals as $activity) {
-                    $slot = $this->determineSlotIndexFromClock($activity->start_time, $slots);
-                    if ($slot !== $slotIdx) {
+                    $coveredSlots = $this->determineSlotIndexesFromRange($activity->start_time, $activity->end_time, $slots);
+                    if (!in_array($slotIdx, $coveredSlots, true)) {
                         continue;
                     }
 
@@ -753,6 +762,30 @@ class WRService
         }
 
         return $lastIndex;
+    }
+
+    private function determineSlotIndexesFromRange(?string $startTime, ?string $endTime, array $slots): array
+    {
+        $startMinutes = $this->timeToMinutes($startTime);
+        $endMinutes = $this->timeToMinutes($endTime);
+
+        if ($startMinutes === null || $endMinutes === null) {
+            return [];
+        }
+
+        $coveredSlots = [];
+
+        foreach ($slots as $index => $range) {
+            $slotStart = $this->timeToMinutes($range[0]);
+            $slotEnd = $this->timeToMinutes($range[1]);
+
+            // kondisi: slot dan aktivitas bersinggungan (overlap)
+            if ($startMinutes < $slotEnd && $endMinutes > $slotStart) {
+                $coveredSlots[] = $index;
+            }
+        }
+
+        return $coveredSlots;
     }
 
     private function timeToMinutes(?string $time): ?int
