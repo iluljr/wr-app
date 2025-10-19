@@ -96,7 +96,7 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => 'prefer',
-            'timezone' => '+07:00',
+            'timezone' => 'Asia/Jakarta',
         ],
 
         'sqlsrv' => [
