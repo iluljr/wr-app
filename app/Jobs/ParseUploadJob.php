@@ -175,13 +175,24 @@ class ParseUploadJob implements ShouldQueue
     private function parseDateWIB($val)
     {
         if (!$val) return null;
-        if (is_numeric($val)) {
-            $dt = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($val);
-            $str = $dt->format('Y-m-d H:i:s');
-            return \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $str, 'Asia/Jakarta')
-                                ->setTimezone('UTC');
+
+        try {
+            // Jika dari Excel numeric serial (misal: 45678.5)
+            if (is_numeric($val)) {
+                $dt = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($val);
+                $str = $dt->format('Y-m-d H:i:s');
+                // Simpan apa adanya (anggap WIB)
+                return \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $str, 'Asia/Jakarta')
+                    ->format('Y-m-d H:i:s');
+            }
+
+            // Jika sudah string tanggal
+            return \Carbon\Carbon::parse($val, 'Asia/Jakarta')->format('Y-m-d H:i:s');
+
+        } catch (\Throwable $e) {
+            \Log::warning("ParseUploadJob gagal parse tanggal '{$val}' di upload {$this->uploadId}: " . $e->getMessage());
+            return null;
         }
-        return \Carbon\Carbon::parse($val, 'Asia/Jakarta')->setTimezone('UTC');
     }
 
     private function nz($v)
