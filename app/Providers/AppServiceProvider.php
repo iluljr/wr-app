@@ -8,17 +8,11 @@ use Illuminate\Support\Carbon;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         // Paksa timezone Laravel dan PHP sesuai config/app.php
@@ -26,6 +20,8 @@ class AppServiceProvider extends ServiceProvider
 
         // Pastikan Carbon juga sinkron dengan timezone dan locale
         Carbon::setLocale('id');
-        Carbon::setDefaultTimezone(Config::get('app.timezone'));
+
+        // Ini versi kompatibel untuk Carbon semua versi
+        Carbon::now()->setTimezone(Config::get('app.timezone'));
     }
 }
