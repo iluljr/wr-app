@@ -91,8 +91,8 @@ class ParseUploadJob implements ShouldQueue
 
                 Ticket::create([
                     'upload_id'       => $upload->id,
-                    'created_at_src'  => $this->toJakartaTs($created),
-                    'resolved_at_src' => $this->toJakartaTs($resolved),
+                    'created_at_src'  => $this->parseDateWIB($created),
+                    'resolved_at_src' => $this->parseDateWIB($resolved),
                     'request_type'    => $this->nz($rtype),
                     'request_id'      => $this->nz($rid),
                     'subject'         => $this->nz($subj),
@@ -115,8 +115,8 @@ class ParseUploadJob implements ShouldQueue
                     'problem_id'         => $this->nz($pid),
                     'change_id'          => $this->nz($cid),
                     'title'              => $this->nz($title),
-                    'scheduled_start_at_src'  => $this->toJakartaTs($start),
-                    'actual_end_at_src'  => $this->toJakartaTs($end),
+                    'scheduled_start_at_src'  => $this->parseDateWIB($start),
+                    'actual_end_at_src'  => $this->parseDateWIB($end),
                 ]);
             }
         }
@@ -172,8 +172,17 @@ class ParseUploadJob implements ShouldQueue
             return null;
         }
     }
-
-
+    private function parseDateWIB($val)
+    {
+        if (!$val) return null;
+        if (is_numeric($val)) {
+            $dt = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($val);
+            $str = $dt->format('Y-m-d H:i:s');
+            return \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $str, 'Asia/Jakarta')
+                                ->setTimezone('UTC');
+        }
+        return \Carbon\Carbon::parse($val, 'Asia/Jakarta')->setTimezone('UTC');
+    }
 
     private function nz($v)
     {
